@@ -1,0 +1,67 @@
+#include <iostream>
+#include<fstream>
+#include<iomanip>
+#include "knnclassify.h"
+#include<vector>
+#define rows 150
+#define cols 5
+using namespace std;
+template<typename T>
+array<double,150> indexes(const array<T,150> &v)
+{
+    array<double,150> idx;
+    iota(idx.begin(),idx.end(),0);//順序遞增
+
+    sort(idx.begin(),idx.end(),[&v](size_t index1,size_t index2) //分類索引內值的大小
+    {
+        return v[index1]<v[index2];
+    });
+    return idx;
+}
+int main()
+{
+    array<array<double,cols>,rows>data;
+    array<array<double,rows>,rows> distancematrix;
+    array<double,rows>x;
+    array<double,x.size()>idx;
+    array<array<double,rows>,rows> sortingarray;
+
+    ifstream inClientFile{"iris.txt", ios::in};
+    if (!inClientFile)
+    {
+        cout << "File could not be opened" << endl;
+        exit(EXIT_FAILURE);
+    }
+    for(size_t j{0}; j<rows; j++)
+    {
+        for(size_t i{0}; i<cols; i++)
+        {
+            inClientFile >>data[j][i];
+            cout<<setw(5)<<data[j][i]<<setw(5);   //印出資料並寫入data
+        }
+        cout<<endl;
+    }
+        knn a;
+        distancematrix=a.EuclideanDistance(data);
+
+    for(size_t j{0}; j<rows; j++)
+    {
+
+        for(size_t k{0}; k<rows; k++)
+        {
+            x[k]=distancematrix[j][k];
+        }
+        for(size_t t{0}; t<rows; t++)
+        {
+                                 //排序歐式距離
+            idx=indexes(x);
+            sortingarray[j][t]=idx[t];
+         //   cout<<setw(5)<<sortingarray[j][t]<<setw(5); //檢查歐式距離排序
+        }
+       // cout<<endl;
+    }
+    cout<<"acc1:"<<setw(6)<<a.acc(data,sortingarray,1)/rows<<endl;
+    cout<<"acc2:"<<setw(6)<<a.acc(data,sortingarray,3)/rows<<endl;
+    cout<<"acc3:"<<setw(6)<<a.acc(data,sortingarray,5)/rows<<endl;
+return 0;
+}
